@@ -1,6 +1,26 @@
 <script setup lang="ts">
-import PropertyList from './components/PropertyList.vue';
-import { properties } from './data/properties';
+import { ref, onMounted } from 'vue'
+import PropertyList from './components/PropertyList.vue'
+import Manifest from '@mnfst/sdk'
+import type { Property } from './types/Property'
+
+// Initialisation avec l'URL par défaut (localhost:1111)
+const manifest = new Manifest()
+
+const properties = ref<Property[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+onMounted(async () => {
+  try {
+    const res = await manifest.from('properties').find({ perPage: 100 })
+    properties.value = res.data
+  } catch (e: any) {
+    error.value = e.message || 'Unknown error'
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -10,7 +30,7 @@ import { properties } from './data/properties';
         <div class="logo-section">
           <div class="logo">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path d="M16 2L3 12v18h10v-8h6v8h10V12L16 2z" fill="#2563eb"/>
+              <path d="M16 2L3 12v18h10v-8h6v8h10V12L16 2z" fill="#2563eb" />
             </svg>
           </div>
           <h1 class="app-title">RealEstate</h1>
@@ -27,18 +47,23 @@ import { properties } from './data/properties';
       <div class="hero-section">
         <h2 class="hero-title">Find Your Perfect Home</h2>
         <p class="hero-description">
-          Discover exceptional properties in prime locations with our curated selection of homes, apartments, and luxury estates.
+          Discover exceptional properties in prime locations with our curated
+          selection of homes, apartments, and luxury estates.
         </p>
       </div>
 
-      <PropertyList :properties="properties" />
+      <div v-if="loading" class="loading">Loading properties...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <PropertyList v-else :properties="properties" />
     </main>
 
     <footer class="app-footer">
       <div class="footer-content">
         <div class="footer-section">
           <h3 class="footer-title">RealEstate</h3>
-          <p class="footer-text">Your trusted partner in finding the perfect property.</p>
+          <p class="footer-text">
+            Your trusted partner in finding the perfect property.
+          </p>
         </div>
         <div class="footer-section">
           <h4 class="footer-subtitle">Contact</h4>
@@ -224,27 +249,27 @@ import { properties } from './data/properties';
     padding: 0 16px;
     height: 70px;
   }
-  
+
   .app-title {
     font-size: 20px;
   }
-  
+
   .main-nav {
     gap: 20px;
   }
-  
+
   .nav-link {
     font-size: 14px;
   }
-  
+
   .hero-title {
     font-size: 36px;
   }
-  
+
   .hero-description {
     font-size: 18px;
   }
-  
+
   .footer-content {
     padding: 40px 16px 20px;
     gap: 32px;
@@ -258,15 +283,15 @@ import { properties } from './data/properties';
     padding: 16px;
     gap: 16px;
   }
-  
+
   .hero-title {
     font-size: 28px;
   }
-  
+
   .hero-description {
     font-size: 16px;
   }
-  
+
   .main-nav {
     gap: 16px;
   }
