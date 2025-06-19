@@ -1,48 +1,55 @@
 <script setup lang="ts">
 interface FilterState {
-  minPrice: number | null;
-  maxPrice: number | null;
-  city: string;
-  bedrooms: number | null;
+  minPrice: number | null
+  maxPrice: number | null
+  city: string
+  bedrooms: number | null
 }
 
 interface PropertyFiltersProps {
-  filters: FilterState;
-  availableCities: string[];
+  filters: FilterState
+  availableCities: string[]
 }
 
 interface PropertyFiltersEmits {
-  (e: 'update:filters', filters: FilterState): void;
+  (e: 'update:filters', filters: FilterState): void
 }
 
-defineProps<PropertyFiltersProps>();
-const emit = defineEmits<PropertyFiltersEmits>();
+const props = defineProps<PropertyFiltersProps>()
+const emit = defineEmits<PropertyFiltersEmits>()
 
 const updateFilter = (key: keyof FilterState, value: any) => {
-  emit('update:filters', { ...arguments[1], [key]: value });
-};
+  emit('update:filters', { ...props.filters, [key]: value })
+}
 
 const resetFilters = () => {
   emit('update:filters', {
     minPrice: null,
     maxPrice: null,
     city: '',
-    bedrooms: null
-  });
-};
+    bedrooms: null,
+  })
+}
 </script>
 
 <template>
   <div class="filters-container">
     <h3 class="filters-title">Filters</h3>
-    
+
     <div class="filters-grid">
       <div class="filter-group">
         <label class="filter-label">Min Price</label>
         <input
           type="number"
           :value="filters.minPrice || ''"
-          @input="updateFilter('minPrice', ($event.target as HTMLInputElement).value ? Number(($event.target as HTMLInputElement).value) : null, filters)"
+          @input="
+            updateFilter(
+              'minPrice',
+              ($event.target as HTMLInputElement).value
+                ? Number(($event.target as HTMLInputElement).value)
+                : null
+            )
+          "
           placeholder="0"
           class="filter-input"
         />
@@ -53,7 +60,14 @@ const resetFilters = () => {
         <input
           type="number"
           :value="filters.maxPrice || ''"
-          @input="updateFilter('maxPrice', ($event.target as HTMLInputElement).value ? Number(($event.target as HTMLInputElement).value) : null, filters)"
+          @input="
+            updateFilter(
+              'maxPrice',
+              ($event.target as HTMLInputElement).value
+                ? Number(($event.target as HTMLInputElement).value)
+                : null
+            )
+          "
           placeholder="No limit"
           class="filter-input"
         />
@@ -63,7 +77,9 @@ const resetFilters = () => {
         <label class="filter-label">City</label>
         <select
           :value="filters.city"
-          @change="updateFilter('city', ($event.target as HTMLSelectElement).value, filters)"
+          @change="
+            updateFilter('city', ($event.target as HTMLSelectElement).value)
+          "
           class="filter-select"
         >
           <option value="">All Cities</option>
@@ -77,7 +93,14 @@ const resetFilters = () => {
         <label class="filter-label">Bedrooms</label>
         <select
           :value="filters.bedrooms || ''"
-          @change="updateFilter('bedrooms', ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null, filters)"
+          @change="
+            updateFilter(
+              'bedrooms',
+              ($event.target as HTMLSelectElement).value
+                ? Number(($event.target as HTMLSelectElement).value)
+                : null
+            )
+          "
           class="filter-select"
         >
           <option value="">Any</option>
@@ -90,9 +113,7 @@ const resetFilters = () => {
       </div>
     </div>
 
-    <button @click="resetFilters" class="reset-button">
-      Reset Filters
-    </button>
+    <button @click="resetFilters" class="reset-button">Reset Filters</button>
   </div>
 </template>
 
