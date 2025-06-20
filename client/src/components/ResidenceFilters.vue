@@ -6,17 +6,17 @@ interface FilterState {
   bedrooms: number | null
 }
 
-interface PropertyFiltersProps {
+interface ResidenceFiltersProps {
   filters: FilterState
   availableCities: string[]
 }
 
-interface PropertyFiltersEmits {
+interface ResidenceFiltersEmits {
   (e: 'update:filters', filters: FilterState): void
 }
 
-const props = defineProps<PropertyFiltersProps>()
-const emit = defineEmits<PropertyFiltersEmits>()
+const props = defineProps<ResidenceFiltersProps>()
+const emit = defineEmits<ResidenceFiltersEmits>()
 
 const updateFilter = (key: keyof FilterState, value: any) => {
   emit('update:filters', { ...props.filters, [key]: value })

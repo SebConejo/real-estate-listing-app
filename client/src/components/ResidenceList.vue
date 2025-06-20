@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Property } from '../types/Property'
-import PropertyCard from './PropertyCard.vue'
+import type { Residence } from '../types/Residence'
+import ResidenceCard from './ResidenceCard.vue'
+import ResidenceFilters from './ResidenceFilters.vue'
 import SearchBar from './SearchBar.vue'
-import PropertyFilters from './PropertyFilters.vue'
 
-interface PropertyListProps {
-  properties: Property[]
+interface ResidenceListProps {
+  residences: Residence[]
 }
 
 interface FilterState {
@@ -16,7 +16,7 @@ interface FilterState {
   bedrooms: number | null
 }
 
-const props = defineProps<PropertyListProps>()
+const props = defineProps<ResidenceListProps>()
 
 const searchQuery = ref('')
 const filters = ref<FilterState>({
@@ -27,48 +27,48 @@ const filters = ref<FilterState>({
 })
 
 const availableCities = computed(() => {
-  const cities = [...new Set(props.properties.map((p) => p.city))]
+  const cities = [...new Set(props.residences.map((r) => r.city))]
   return cities.sort()
 })
 
-const filteredProperties = computed(() => {
-  let filtered = props.properties
+const filteredResidences = computed(() => {
+  let filtered = props.residences
 
   // Apply text search
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
     filtered = filtered.filter(
-      (property) =>
-        property.title.toLowerCase().includes(query) ||
-        property.location.toLowerCase().includes(query) ||
-        property.city.toLowerCase().includes(query) ||
-        property.description.toLowerCase().includes(query) ||
-        property.type.toLowerCase().includes(query)
+      (residence) =>
+        residence.title.toLowerCase().includes(query) ||
+        residence.location.toLowerCase().includes(query) ||
+        residence.city.toLowerCase().includes(query) ||
+        residence.description.toLowerCase().includes(query) ||
+        residence.type.toLowerCase().includes(query)
     )
   }
 
   // Apply filters
   if (filters.value.minPrice !== null) {
     filtered = filtered.filter(
-      (property) => property.price >= filters.value.minPrice!
+      (residence) => residence.price >= filters.value.minPrice!
     )
   }
 
   if (filters.value.maxPrice !== null) {
     filtered = filtered.filter(
-      (property) => property.price <= filters.value.maxPrice!
+      (residence) => residence.price <= filters.value.maxPrice!
     )
   }
 
   if (filters.value.city) {
     filtered = filtered.filter(
-      (property) => property.city === filters.value.city
+      (residence) => residence.city === filters.value.city
     )
   }
 
   if (filters.value.bedrooms !== null) {
     filtered = filtered.filter(
-      (property) => property.bedrooms >= filters.value.bedrooms!
+      (residence) => residence.bedrooms >= filters.value.bedrooms!
     )
   }
 
@@ -81,25 +81,81 @@ const updateFilters = (newFilters: FilterState) => {
 
 // Modal logic
 const showModal = ref(false)
-const selectedProperty = ref<Property | null>(null)
+const selectedResidence = ref<Residence | null>(null)
 
-function openModal(property: Property) {
-  selectedProperty.value = property
+// Contact form state
+const contactName = ref('')
+const contactEmail = ref('')
+const contactMessage = ref('')
+const contactError = ref('')
+const contactSuccess = ref(false)
+const contactLoading = ref(false)
+
+function openModal(residence: Residence) {
+  selectedResidence.value = residence
   showModal.value = true
+  contactName.value = ''
+  contactEmail.value = ''
+  contactMessage.value = ''
+  contactError.value = ''
+  contactSuccess.value = false
 }
 function closeModal() {
   showModal.value = false
   setTimeout(() => {
-    selectedProperty.value = null
+    selectedResidence.value = null
   }, 300) // match transition duration
+}
+
+async function submitContactForm() {
+  contactError.value = ''
+  contactSuccess.value = false
+  // Simple client-side validation
+  if (!contactName.value.trim()) {
+    contactError.value = 'Name is required.'
+    return
+  }
+  if (
+    !contactEmail.value.trim() ||
+    !/^\S+@\S+\.\S+$/.test(contactEmail.value)
+  ) {
+    contactError.value = 'A valid email is required.'
+    return
+  }
+  if (!contactMessage.value.trim()) {
+    contactError.value = 'Message is required.'
+    return
+  }
+  contactLoading.value = true
+  try {
+    const res = await fetch('http://localhost:1111/api/collections/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: contactName.value,
+        email: contactEmail.value,
+        message: contactMessage.value,
+        residence: selectedResidence.value?.id,
+      }),
+    })
+    if (!res.ok) throw new Error('Failed to send message')
+    contactSuccess.value = true
+    contactName.value = ''
+    contactEmail.value = ''
+    contactMessage.value = ''
+  } catch (e: any) {
+    contactError.value = e.message || 'Server error'
+  } finally {
+    contactLoading.value = false
+  }
 }
 </script>
 
 <template>
-  <div class="property-list-container">
+  <div class="residence-list-container">
     <div class="search-section">
       <SearchBar v-model="searchQuery" />
-      <PropertyFilters
+      <ResidenceFilters
         :filters="filters"
         :available-cities="availableCities"
         @update:filters="updateFilters"
@@ -108,7 +164,7 @@ function closeModal() {
 
     <div class="results-header">
       <h2 class="results-title">
-        {{ filteredProperties.length }} Properties Found
+        {{ filteredResidences.length }} Residences Found
       </h2>
       <p
         class="results-subtitle"
@@ -145,12 +201,12 @@ function closeModal() {
       </p>
     </div>
 
-    <div v-if="filteredProperties.length > 0" class="properties-grid">
-      <PropertyCard
-        v-for="property in filteredProperties"
-        :key="property.id"
-        :property="property"
-        @click="openModal(property)"
+    <div v-if="filteredResidences.length > 0" class="residences-grid">
+      <ResidenceCard
+        v-for="residence in filteredResidences"
+        :key="residence.id"
+        :residence="residence"
+        @click="openModal(residence)"
         style="cursor: pointer"
       />
     </div>
@@ -166,40 +222,70 @@ function closeModal() {
           ></path>
         </svg>
       </div>
-      <h3 class="no-results-title">No properties found</h3>
+      <h3 class="no-results-title">No residences found</h3>
       <p class="no-results-text">
-        Try adjusting your search criteria or filters to find more properties.
+        Try adjusting your search criteria or filters to find more residences.
       </p>
     </div>
 
     <!-- Modal -->
     <transition name="modal-fade">
       <div
-        v-if="showModal && selectedProperty"
+        v-if="showModal && selectedResidence"
         class="modal-overlay"
         @click.self="closeModal"
       >
         <div class="modal-content">
           <button class="modal-close" @click="closeModal">&times;</button>
           <img
-            :src="selectedProperty.image.medium"
-            :alt="selectedProperty.title"
+            :src="selectedResidence.image.medium"
+            :alt="selectedResidence.title"
             class="modal-image"
           />
-          <h2 class="modal-title">{{ selectedProperty.title }}</h2>
+          <h2 class="modal-title">{{ selectedResidence.title }}</h2>
           <div class="modal-price">
-            ${{ selectedProperty.price.toLocaleString() }}
+            ${{ selectedResidence.price.toLocaleString() }}
           </div>
           <div class="modal-location">
-            {{ selectedProperty.location }}, {{ selectedProperty.city }}
+            {{ selectedResidence.location }}, {{ selectedResidence.city }}
           </div>
           <div class="modal-features">
-            <span>{{ selectedProperty.bedrooms }} bed</span>
-            <span>{{ selectedProperty.bathrooms }} bath</span>
-            <span>{{ selectedProperty.surfaceArea }} m²</span>
-            <span class="modal-type">{{ selectedProperty.type }}</span>
+            <span>{{ selectedResidence.bedrooms }} bed</span>
+            <span>{{ selectedResidence.bathrooms }} bath</span>
+            <span>{{ selectedResidence.surfaceArea }} m²</span>
+            <span class="modal-type">{{ selectedResidence.type }}</span>
           </div>
-          <p class="modal-description">{{ selectedProperty.description }}</p>
+          <p class="modal-description">{{ selectedResidence.description }}</p>
+
+          <!-- Contact Form -->
+          <form class="contact-form" @submit.prevent="submitContactForm">
+            <h3>Contact the Agent</h3>
+            <input
+              v-model="contactName"
+              type="text"
+              placeholder="Your Name"
+              required
+            />
+            <input
+              v-model="contactEmail"
+              type="email"
+              placeholder="Your Email"
+              required
+            />
+            <textarea
+              v-model="contactMessage"
+              placeholder="Your Message"
+              required
+              rows="4"
+            ></textarea>
+            <button type="submit" :disabled="contactLoading">
+              {{ contactLoading ? 'Sending...' : 'Send Message' }}
+            </button>
+            <div v-if="contactError" class="form-error">{{ contactError }}</div>
+            <div v-if="contactSuccess" class="form-success">
+              Message sent successfully!
+            </div>
+          </form>
         </div>
       </div>
     </transition>
@@ -207,7 +293,7 @@ function closeModal() {
 </template>
 
 <style scoped>
-.property-list-container {
+.residence-list-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
@@ -235,7 +321,7 @@ function closeModal() {
   margin: 0;
 }
 
-.properties-grid {
+.residences-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 32px;
@@ -276,11 +362,11 @@ function closeModal() {
 }
 
 @media (max-width: 768px) {
-  .property-list-container {
+  .residence-list-container {
     padding: 0 16px;
   }
 
-  .properties-grid {
+  .residences-grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }
@@ -291,7 +377,7 @@ function closeModal() {
 }
 
 @media (max-width: 480px) {
-  .properties-grid {
+  .residences-grid {
     gap: 20px;
   }
 }
@@ -405,5 +491,47 @@ function closeModal() {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+.contact-form {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.contact-form input,
+.contact-form textarea {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  resize: none;
+}
+.contact-form button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.contact-form button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+.form-error {
+  color: #dc2626;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+.form-success {
+  color: #16a34a;
+  font-size: 0.95rem;
+  margin-top: 4px;
 }
 </style>

@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PropertyList from './components/PropertyList.vue'
+import ResidenceList from './components/ResidenceList.vue'
+
 import Manifest from '@mnfst/sdk'
-import type { Property } from './types/Property'
+import type { Residence } from '../types/Residence'
 
 // Initialisation avec l'URL par défaut (localhost:1111)
 const manifest = new Manifest()
 
-const properties = ref<Property[]>([])
+const residences = ref<Residence[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const res = await manifest.from('properties').find({ perPage: 100 })
-    properties.value = res.data
+    const res = await manifest.from('residences').find({ perPage: 100 })
+    residences.value = res.data
   } catch (e: any) {
     error.value = e.message || 'Unknown error'
   } finally {
@@ -36,7 +37,7 @@ onMounted(async () => {
           <h1 class="app-title">RealEstate</h1>
         </div>
         <nav class="main-nav">
-          <a href="#" class="nav-link active">Properties</a>
+          <a href="#" class="nav-link active">Residences</a>
           <a href="#" class="nav-link">About</a>
           <a href="#" class="nav-link">Contact</a>
         </nav>
@@ -47,14 +48,14 @@ onMounted(async () => {
       <div class="hero-section">
         <h2 class="hero-title">Find Your Perfect Home</h2>
         <p class="hero-description">
-          Discover exceptional properties in prime locations with our curated
+          Discover exceptional residences in prime locations with our curated
           selection of homes, apartments, and luxury estates.
         </p>
       </div>
 
-      <div v-if="loading" class="loading">Loading properties...</div>
+      <div v-if="loading" class="loading">Loading residences...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
-      <PropertyList v-else :properties="properties" />
+      <ResidenceList v-else :residences="residences" />
     </main>
 
     <footer class="app-footer">
@@ -62,7 +63,7 @@ onMounted(async () => {
         <div class="footer-section">
           <h3 class="footer-title">RealEstate</h3>
           <p class="footer-text">
-            Your trusted partner in finding the perfect property.
+            Your trusted partner in finding the perfect residence.
           </p>
         </div>
         <div class="footer-section">

@@ -3,7 +3,7 @@
 
 name: Real Estate Listing App 🏡
 entities:
-  Property:
+  Residence:
     properties:
       - title
       - { name: price, type: number }
@@ -24,6 +24,8 @@ entities:
     policies:
       read:
         - access: public
+      update:
+        - access: public
 
   Agent:
     properties:
@@ -34,6 +36,8 @@ entities:
     policies:
       read:
         - access: public
+      update:
+        - access: public
 
   Inquiry:
     properties:
@@ -41,10 +45,14 @@ entities:
       - { name: message, type: text }
       - { name: email, type: email }
     belongsTo:
-      - Property
-
+      - Residence
+    middlewares:
+      beforeCreate:
+        - handler: sendInquiryEmail
     policies:
       read:
         - access: public
       create:
+        - access: public
+      update:
         - access: public

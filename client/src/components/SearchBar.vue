@@ -1,36 +1,48 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 interface SearchBarProps {
-  modelValue: string;
+  modelValue: string
 }
 
 interface SearchBarEmits {
-  (e: 'update:modelValue', value: string): void;
+  (e: 'update:modelValue', value: string): void
 }
 
-defineProps<SearchBarProps>();
-defineEmits<SearchBarEmits>();
+defineProps<SearchBarProps>()
+defineEmits<SearchBarEmits>()
 
-const searchInput = ref<HTMLInputElement | null>(null);
+const searchInput = ref<HTMLInputElement | null>(null)
 
 const focusSearch = () => {
-  searchInput.value?.focus();
-};
+  searchInput.value?.focus()
+}
 </script>
 
 <template>
   <div class="search-bar">
     <div class="search-input-container">
-      <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      <svg
+        class="search-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        ></path>
       </svg>
       <input
         ref="searchInput"
         type="text"
         :value="modelValue"
-        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-        placeholder="Search properties by title, location, or description..."
+        @input="
+          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+        "
+        placeholder="Search residencies by title, location, or description..."
         class="search-input"
       />
     </div>

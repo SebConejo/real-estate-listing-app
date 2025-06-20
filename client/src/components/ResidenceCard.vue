@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Property } from '../types/Property'
+import type { Residence } from '../types/Residence'
 
-interface PropertyCardProps {
-  property: Property
+interface ResidenceCardProps {
+  residence: Residence
 }
 
-defineProps<PropertyCardProps>()
+defineProps<ResidenceCardProps>()
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -18,24 +18,24 @@ const formatPrice = (price: number) => {
 </script>
 
 <template>
-  <div class="property-card">
-    <div class="property-image-container">
+  <div class="residence-card">
+    <div class="residence-image-container">
       <img
-        :src="property.image.medium"
-        :alt="property.title"
-        class="property-image"
+        :src="residence.image.medium"
+        :alt="residence.title"
+        class="residence-image"
         loading="lazy"
       />
-      <div class="property-type-badge">{{ property.type }}</div>
+      <div class="residence-type-badge">{{ residence.type }}</div>
     </div>
 
-    <div class="property-content">
-      <div class="property-header">
-        <h3 class="property-title">{{ property.title }}</h3>
-        <div class="property-price">{{ formatPrice(property.price) }}</div>
+    <div class="residence-content">
+      <div class="residence-header">
+        <h3 class="residence-title">{{ residence.title }}</h3>
+        <div class="residence-price">{{ formatPrice(residence.price) }}</div>
       </div>
 
-      <div class="property-location">
+      <div class="residence-location">
         <svg
           class="location-icon"
           fill="none"
@@ -55,10 +55,10 @@ const formatPrice = (price: number) => {
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
           ></path>
         </svg>
-        <span>{{ property.location }}</span>
+        <span>{{ residence.location }}</span>
       </div>
 
-      <div class="property-features">
+      <div class="residence-features">
         <div class="feature">
           <svg
             class="feature-icon"
@@ -80,7 +80,9 @@ const formatPrice = (price: number) => {
             ></path>
           </svg>
           <span>
-            {{ property.bedrooms }} bed{{ property.bedrooms !== 1 ? 's' : '' }}
+            {{ residence.bedrooms }} bed{{
+              residence.bedrooms !== 1 ? 's' : ''
+            }}
           </span>
         </div>
 
@@ -105,8 +107,8 @@ const formatPrice = (price: number) => {
             ></path>
           </svg>
           <span>
-            {{ property.bathrooms }} bath{{
-              property.bathrooms !== 1 ? 's' : ''
+            {{ residence.bathrooms }} bath{{
+              residence.bathrooms !== 1 ? 's' : ''
             }}
           </span>
         </div>
@@ -125,11 +127,11 @@ const formatPrice = (price: number) => {
               d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
             ></path>
           </svg>
-          <span>{{ property.surfaceArea }} m²</span>
+          <span>{{ residence.surfaceArea }} m²</span>
         </div>
       </div>
 
-      <p class="property-description">{{ property.description }}</p>
+      <p class="residence-description">{{ residence.description }}</p>
 
       <button class="view-details-button">View Details</button>
     </div>
@@ -137,7 +139,7 @@ const formatPrice = (price: number) => {
 </template>
 
 <style scoped>
-.property-card {
+.residence-card {
   background: white;
   border-radius: 16px;
   overflow: hidden;
@@ -148,29 +150,29 @@ const formatPrice = (price: number) => {
   flex-direction: column;
 }
 
-.property-card:hover {
+.residence-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.property-image-container {
+.residence-image-container {
   position: relative;
   height: 240px;
   overflow: hidden;
 }
 
-.property-image {
+.residence-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.property-card:hover .property-image {
+.residence-card:hover .residence-image {
   transform: scale(1.05);
 }
 
-.property-type-badge {
+.residence-type-badge {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -183,18 +185,18 @@ const formatPrice = (price: number) => {
   backdrop-filter: blur(4px);
 }
 
-.property-content {
+.residence-content {
   padding: 24px;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.property-header {
+.residence-header {
   margin-bottom: 12px;
 }
 
-.property-title {
+.residence-title {
   font-size: 20px;
   font-weight: 700;
   color: #111827;
@@ -202,13 +204,13 @@ const formatPrice = (price: number) => {
   line-height: 1.2;
 }
 
-.property-price {
+.residence-price {
   font-size: 24px;
   font-weight: 800;
   color: #2563eb;
 }
 
-.property-location {
+.residence-location {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -223,7 +225,7 @@ const formatPrice = (price: number) => {
   flex-shrink: 0;
 }
 
-.property-features {
+.residence-features {
   display: flex;
   gap: 20px;
   margin-bottom: 16px;
@@ -245,7 +247,7 @@ const formatPrice = (price: number) => {
   flex-shrink: 0;
 }
 
-.property-description {
+.residence-description {
   color: #6b7280;
   font-size: 14px;
   line-height: 1.5;
@@ -276,11 +278,11 @@ const formatPrice = (price: number) => {
 }
 
 @media (max-width: 480px) {
-  .property-features {
+  .residence-features {
     gap: 12px;
   }
 
-  .property-content {
+  .residence-content {
     padding: 20px 16px;
   }
 }
